@@ -22,7 +22,9 @@
    "prereqs" : {
       "build" : {
          "requires" : {
-            "ExtUtils::MakeMaker" : 0
+            "Test::Differences" : 0,
+            "Test::Exception" : 0,
+            "Test::More" : 0
          }
       },
       "configure" : {
@@ -31,9 +33,11 @@
          }
       },
       "runtime" : {
-         "requires" : {}
+         "requires" : {
+            "perl" : "v5.10.0"
+         }
       }
    },
    "release_status" : "stable",
-   "version" : "v1.0.0"
+   "version" : "v1.0.1"
 }

@@ -4,7 +4,7 @@
 # File:     02_compareItem.t
 # Date:     2012-07-27
 # Author:   H. Klausing (h.klausing (at) gmx.de)
-# Version:  1.0.0
+# Version:  v1.0.1
 #
 # Description:
 #   Tests for Array::CompareAndFilter function compareItem.
@@ -12,6 +12,8 @@
 ################################################################################
 #
 # Updates:
+# 2012-08-05 v1.0.1   H. Klausing
+#       required perl version removed.
 # 2012-07-27 v1.0.0   H. Klausing
 #       Initial script version
 #
@@ -26,14 +28,11 @@
 #--- process requirements ---------------
 use warnings;
 use strict;
-use v5.10;    # for smart match
 
 #
 #
 #
 #--- global variables -------------------
-state @emptyArray;
-
 #
 #
 #
@@ -129,16 +128,13 @@ sub main {
         0, 'compareItem: check behaviour of undefined value arrays, ([undef],[undef,undef])==0');
 
     # Test - check big equal arrays, ([1..100000], [1..100000])==1
-    is(compareItem([1..100000], [1..100000]),
-        1, 'compareItem: check big equal arrays, ([1..100000], [1..100000])==1');
+    is(compareItem([1 .. 100000], [1 .. 100000]), 1, 'compareItem: check big equal arrays, ([1..100000], [1..100000])==1');
 
     # Test - check big unequal arrays, ([1..100000], [1000000..1])==0
-    is(compareItem([1..100000], [1000000..1]),
-        0, 'compareItem: check big unequal arrays, ([1..100000], [1000000..1])==0');
+    is(compareItem([1 .. 100000], [1000000 .. 1]), 0, 'compareItem: check big unequal arrays, ([1..100000], [1000000..1])==0');
 
     # Test - check big unequal arrays, ([1..100000], [0..100000])==0
-    is(compareItem([1..100000], [0..100000]),
-        0, 'compareItem: check big unequal arrays, ([1..100000], [0..100000])==0');
+    is(compareItem([1 .. 100000], [0 .. 100000]), 0, 'compareItem: check big unequal arrays, ([1..100000], [0..100000])==0');
 
     # examples
     # compareItem([1,2,3,5], [2,1,4,3])==0

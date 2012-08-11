@@ -1,0 +1,11 @@
+Change log
+
+v1.0.1  2012-08-05
+    -   Module Test::Differences removed from test scripts to avoid 
+        breaks on some systems.
+    -   Some example files added.
+    -   POD test and POD coverage test added.
+    -   compareOrder() modified, it's using ~~ smart-match operator.
+
+v1.0.0  2012-07-30
+    -   Initial version of Array::CompareAndFilter

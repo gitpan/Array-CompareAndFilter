@@ -4,7 +4,7 @@
 # File:     10_singularize.t
 # Date:     2012-07-27
 # Author:   H. Klausing (h.klausing (at) gmx.de)
-# Version:  1.0.0
+# Version:  v1.0.1
 #
 # Description:
 #   Tests for Array::CompareAndFilter function singularize.
@@ -12,6 +12,9 @@
 ################################################################################
 #
 # Updates:
+# 2012-08-05 v1.0.1   H. Klausing
+#       version number incremented
+#       parameter 2 type test added
 # 2012-07-27 v1.0.0   H. Klausing
 #       Initial script version
 #
@@ -35,7 +38,7 @@ use strict;
 #
 #
 #--- used modules -----------------------
-use Test::More(tests => 31);    # <-- put test numbers here
+use Test::More(tests => 32);    # <-- put test numbers here
 use Test::Differences qw(eq_or_diff);
 use Test::Exception;
 use Array::CompareAndFilter qw(singularize);
@@ -94,6 +97,9 @@ sub main {
     # Test - Get singular items with empty array for default, ([])==([])
     @list = singularize([]);
     eq_or_diff(\@list, [], 'singularize: Get singular items with empty array for default, ([])==([])');
+
+    # Test - Compare error detection, if parameter 2 is an array
+    dies_ok {singularize([],[])} "singularize: Compare error detection, if parameter 2 is an array";
 
     # Test - Get singular items with empty array for sort, ([],'s')==([])
     @list = singularize([], 's');

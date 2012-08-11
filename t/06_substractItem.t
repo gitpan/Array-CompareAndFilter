@@ -4,7 +4,7 @@
 # File:     06_substractItem.t
 # Date:     2012-07-27
 # Author:   H. Klausing (h.klausing (at) gmx.de)
-# Version:  1.0.0
+# Version:  v1.0.1
 #
 # Description:
 #   Tests for Array::CompareAndFilter function substractItem.
@@ -12,6 +12,8 @@
 ################################################################################
 #
 # Updates:
+# 2012-08-05 v1.0.1   H. Klausing
+#       version number incremented
 # 2012-07-27 v1.0.0   H. Klausing
 #       Initial script version
 #

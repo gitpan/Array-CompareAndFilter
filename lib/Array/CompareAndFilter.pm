@@ -4,7 +4,7 @@
 # File:     CompareAndFilter.pm
 # Date:     2012-06-25
 # Author:   H. Klausing (h.klausing (at) gmx.de)
-# Version:  1.0.0
+# Version:  v1.0.1
 #
 # Description:
 #   Compares and filters contents of arrays.
@@ -12,18 +12,22 @@
 #
 # Options:
 #
-# Tidy:     -l=128 -pt=2 -sbt=2 -bt=2 -bbt=2 -csc -csci=20 -bbc -bbb -lbl=1 -sob -bar -nsfs -nolq
+# Tidy:     -l=128 -pt=2 -sbt=2 -bt=2 -bbt=2 -csc -csci=28 -bbc -bbb -lbl=1 -sob -bar -nsfs -nolq
 #
 ################################################################################
 #
 # Updates:
+# 2012-08-05 v1.0.1   H. Klausing
+#       Test scripts modifed, external modules eleminated.
+#       compareOrder() modified, it's using ~~ smart-match operator.
+#       Documentation updated.
 # 2012-06-25 v1.0.0   H. Klausing
 #       Initial script version
 #
 ################################################################################
 #
-use v5.10;
-our $VERSION = 'v1.0.0';    # Version number
+use v5.10.0;
+our $VERSION = 'v1.0.1';    # Version number
 
 #--- ToDo list -----------------------------------------------------------------
 #
@@ -182,20 +186,7 @@ sub compareOrder {
     die "Parameter 1 must be an array reference!" if (ref($arr1_ref) ne 'ARRAY');
     die "Parameter 2 must be an array reference!" if (ref($arr2_ref) ne 'ARRAY');
 
-    # use item value as hash key to shrink data and count the occurrence
-    my %count = incrementItems([(@$arr1_ref, @$arr2_ref)]);    # count amount of items
-
-    # check if all items counted twice
-    for (keys %count) {
-        return 0 if ($count{$_} % 2);
-    }
-    no warnings;
-
-    for (my $i = 0; $i < scalar(@$arr1_ref); $i++) {
-        return 0 if ($arr1_ref->[$i] ne $arr2_ref->[$i]);
-    }
-    use warnings;
-    return 1;
+    return (@$arr1_ref ~~ @$arr2_ref) ? 1 : 0;
 } ## end sub compareOrder
 
 #
@@ -422,6 +413,7 @@ sub singularize {
     my ($arr_ref, $order) = @_;
     $order = $order // 's';
     die "Parameter 1 must be an array reference!" if (ref($arr_ref) ne 'ARRAY');
+    die "Parameter 2 must be a scalar!" if (ref($order) ne '');
 
     if ($order =~ /^(b|e)$/i) {
         my @outList;
@@ -628,7 +620,10 @@ array is found in the other array it will return true (1). The function
 returns false (0) if a difference in the content was found. The 
 comparison is case sensitive. Value is defined as a data value of
 # an item.
-If an item value if undefined it will be handled like a text like '?undef?'.
+
+If an item value is undefined it will be handled within the function like 
+the text like '?undef?'. If an item value of ARRAY1 or ARRAY2 has the same
+value than the function returns a undef for this.
 
 =over 4
 
@@ -656,7 +651,10 @@ I<compareItem> compares all items of two arrays. If the size and the
 contents are equal this function will return 1. The function returns 0
 if a difference in the size or in the content is found. The comparison 
 is case sensitive.
-If an item value if undefined it will be handled like a text like '?undef?'.
+
+If an item value is undefined it will be handled within the function like 
+the text like '?undef?'. If an item value of ARRAY1 or ARRAY2 has the same
+value than the function returns a undef for this.
 
 =over 4
 
@@ -684,7 +682,10 @@ I<compareOrder> compares all items of two arrays. If the size, content
 and the order of items are same it will return 1. The function returns 0
 if a difference in size, content or order of items is found. The 
 comparison is case sensitive.
-If an item value if undefined it will be handled like a text like '?undef?'.
+
+If an item value is undefined it will be handled within the function like 
+the text like '?undef?'. If an item value of ARRAY1 or ARRAY2 has the same
+value than the function returns a undef for this.
 
 =over 4
 
@@ -713,7 +714,10 @@ I<intersection> returns all items that are listed in each of both arrays
 as a sorted list. If one array has no items or no item is listed in the 
 other array this function returns an empty array. The comparison is 
 case sensitive.
-If an item value if undefined it will be handled like a text like '?undef?'.
+
+If an item value is undefined it will be handled within the function like 
+the text like '?undef?'. If an item value of ARRAY1 or ARRAY2 has the same
+value than the function returns a undef for this.
 
 =over 4
 
@@ -740,6 +744,7 @@ ARRAY1, than one item of ARRAY1 will be removed from the begin of the
 list. To remove multiple items, same amount of items have to be listed 
 in ARRAY1. If no match between an item of ARRAY2 to ARRAY1 is found, 
 no change will happen in ARRAY1.
+
 The item order of ARRAY1 will be kept in the result list.
 
 =over 4
@@ -764,7 +769,8 @@ The item order of ARRAY1 will be kept in the result list.
 I<substractValue> returns an array with a subtraction list of the
 operation ARRAY1 - ARRAY2. A value in ARRAY2 removes all items of 
 ARRAY1 that have the same value. If no match between an item of ARRAY2 
-to ARRAY1 is found, no change will happen in ARRAY1. 
+to ARRAY1 is found, no change will happen in ARRAY1.
+
 The item order of ARRAY1 will be kept in the result list.
 
 =over 4
@@ -788,7 +794,10 @@ The item order of ARRAY1 will be kept in the result list.
 
 I<difference> returns a list of items that are not listed in the other
 array. The comparison is case sensitive.
-If an item value if undefined it will be handled like a text like '?undef?'.
+
+If an item value is undefined it will be handled within the function like 
+the text like '?undef?'. If an item value of ARRAY1 or ARRAY2 has the same
+value than the function returns a undef for this.
 
 =over 4
 
@@ -813,6 +822,10 @@ If an item value if undefined it will be handled like a text like '?undef?'.
 I<unscramble> returns a summary list of items. Each item value of 
 both arrays will exist maximal one time.
 
+If an item value is undefined it will be handled within the function like 
+the text like '?undef?'. If an item value of ARRAY1 or ARRAY2 has the same
+value than the function returns a undef for this.
+
 =over 4
 
 =item Examples
@@ -833,6 +846,10 @@ both arrays will exist maximal one time.
 
 I<unique> checks all item values of ARRAY1 in the array of ARRAY2. 
 It will return all items which were not found in ARRAY2.
+
+If an item value is undefined it will be handled within the function like 
+the text like '?undef?'. If an item value of ARRAY1 or ARRAY2 has the same
+value than the function returns a undef for this.
 
 =over 4
 
@@ -867,6 +884,11 @@ used. E.g. [1,2,1,3] -> (2,1,3)
 No order argument or other data then 'b|B' or 'e|B' will return a sorted
 list of singularize values.
 
+If sorting is selected than following issue needes to be considered.
+If an item value is undefined it will be handled within the function like 
+the text like '?undef?'. If an item value of ARRAY1 or ARRAY2 has the same
+value than the function returns a undef for this.
+
 =over 4
 
 =item Examples
@@ -883,7 +905,7 @@ list of singularize values.
 
 =head1 VERSION
 
-1.0.0
+v1.0.1
 
 =head1 AUTHOR
 
@@ -897,5 +919,6 @@ This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
 =cut
+
 __END__
 

@@ -4,7 +4,7 @@
 # File:     01_compareValue.t
 # Date:     2012-07-27
 # Author:   H. Klausing (h.klausing (at) gmx.de)
-# Version:  1.0.0
+# Version:  v1.0.1
 #
 # Description:
 #   Tests for Array::CompareAndFilter function compareValue.
