@@ -4,7 +4,7 @@
 # File:     99_pod.t
 # Date:     2012-08-05
 # Author:   H. Klausing (h.klausing (at) gmx.de)
-# Version:  v1.0.1
+# Version:  v1.0.2
 #
 # Description:
 #   Tests for POD.
@@ -12,6 +12,8 @@
 ################################################################################
 #
 # Updates:
+# 2012-08-12 v1.0.2   H. Klausing
+#       version number incremented
 # 2012-08-05 v1.0.1   H. Klausing
 #       Initial script version
 #

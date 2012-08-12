@@ -15,6 +15,6 @@ WriteMakefile(
         : ()
     ),
     MIN_PERL_VERSION => 'v5.10.0',
-    BUILD_REQUIRES   => {'Test::More' => 0, 'Test::Exception' => 0, 'Test::Differences' => 0},
+    BUILD_REQUIRES   => {'Test::More' => 0, 'Test::Pod::Coverage' => 0, 'Test::Exception' => 0, 'Test::Differences' => 0},
 );
 

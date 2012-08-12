@@ -4,7 +4,7 @@
 # File:     CompareAndFilter.pm
 # Date:     2012-06-25
 # Author:   H. Klausing (h.klausing (at) gmx.de)
-# Version:  v1.0.1
+# Version:  v1.0.2
 #
 # Description:
 #   Compares and filters contents of arrays.
@@ -17,6 +17,8 @@
 ################################################################################
 #
 # Updates:
+# 2012-08-12 v1.0.2   H. Klausing
+#       version number incremented
 # 2012-08-05 v1.0.1   H. Klausing
 #       Test scripts modifed, external modules eleminated.
 #       compareOrder() modified, it's using ~~ smart-match operator.
@@ -27,7 +29,7 @@
 ################################################################################
 #
 use v5.10.0;
-our $VERSION = 'v1.0.1';    # Version number
+our $VERSION = 'v1.0.2';    # Version number
 
 #--- ToDo list -----------------------------------------------------------------
 #
@@ -905,7 +907,7 @@ value than the function returns a undef for this.
 
 =head1 VERSION
 
-v1.0.1
+v1.0.2
 
 =head1 AUTHOR
 

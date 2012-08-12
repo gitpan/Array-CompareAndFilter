@@ -24,7 +24,8 @@
          "requires" : {
             "Test::Differences" : 0,
             "Test::Exception" : 0,
-            "Test::More" : 0
+            "Test::More" : 0,
+            "Test::Pod::Coverage" : 0
          }
       },
       "configure" : {
@@ -39,5 +40,5 @@
       }
    },
    "release_status" : "stable",
-   "version" : "v1.0.1"
+   "version" : "v1.0.2"
 }

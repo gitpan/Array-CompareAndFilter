@@ -6,6 +6,7 @@ build_requires:
   Test::Differences: 0
   Test::Exception: 0
   Test::More: 0
+  Test::Pod::Coverage: 0
 configure_requires:
   ExtUtils::MakeMaker: 0
 dynamic_config: 1
@@ -21,4 +22,4 @@ no_index:
     - inc
 requires:
   perl: v5.10.0
-version: v1.0.1
+version: v1.0.2

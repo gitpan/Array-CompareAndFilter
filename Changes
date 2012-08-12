@@ -1,5 +1,8 @@
 Change log
 
+v1.0.2  2012-08-12
+    -   Missing build require module added. 
+
 v1.0.1  2012-08-05
     -   Module Test::Differences removed from test scripts to avoid 
         breaks on some systems.
