@@ -4,7 +4,6 @@
 # File:     11_examples.t
 # Date:     2012-07-27
 # Author:   H. Klausing (h.klausing (at) gmx.de)
-# Version:  v1.0.2
 #
 # Description:
 #   Tests for Array::CompareAndFilter verification of the POD examples.
@@ -12,11 +11,14 @@
 ################################################################################
 #
 # Updates:
-# 2012-08-12 v1.0.2   H. Klausing
+# 2012-09-01 H. Klausing
+#       Tests added with multiple equal elements
+#       Version number removed.
+# 2012-08-12 v 1.0.2   H. Klausing
 #       version number incremented
-# 2012-08-05 v1.0.1   H. Klausing
+# 2012-08-05 v 1.0.1   H. Klausing
 #       version number incremented
-# 2012-07-27 v1.0.0   H. Klausing
+# 2012-07-27 v 1.0.0   H. Klausing
 #       Initial script version
 #
 ################################################################################
@@ -39,7 +41,7 @@ use strict;
 #
 #
 #--- used modules -----------------------
-use Test::More(tests => 52);    # <-- put test numbers here
+use Test::More(tests => 53);    # <-- put test numbers here
 use Test::Differences qw(eq_or_diff);
 use Array::CompareAndFilter qw(:all);
 
@@ -75,8 +77,8 @@ sub main {
     is(compareValue([1, 2, 3, 3], [1, 2, 3]), 1, "compareValue([1,2,3,3], [1,2,3]))");
     is(compareItem([1, 2, 3], [2, 3, 1]), 1, "compareItem([1,2,3], [2,3,1]))");
     is(compareOrder([1, 2, 3], [1, 2, 3]), 1, "compareOrder([1,2,3], [1,2,3])");
-    @list = intersection([1, 2, 3], [2, 3, 4]);
-    eq_or_diff(\@list, [2, 3], "intersection([1,2,3], [2,3,4])");    # "The intersection items (\@inter) are 2 & 3.";
+    @list = intersection([1, 2, 3], [2, 3, 4, 2]);
+    eq_or_diff(\@list, [2, 3], "intersection([1,2,3], [2,3,4,2])");    # "The intersection items (\@inter) are 2 & 3.";
     @list = substractItem([3, 1, 2, 3], [2, 3]);
     eq_or_diff(\@list, [1, 3], "substractItem([3,1,2,3], [2,3])");    # "The substractItem items (\@subItem) are 1 & 3"
     @list = substractValue([3, 1, 2, 3], [2, 3]);
@@ -116,6 +118,8 @@ sub main {
     eq_or_diff(\@list, [], "intersection([], [])");
     @list = intersection([1, 2], [2, 3]);                                                             # returns (2)
     eq_or_diff(\@list, [2], "intersection([1,2], [2,3])");
+    @list = intersection([2,1,2], [3,1,2,2]);                                                             # returns (2)
+    eq_or_diff(\@list, [1,2,2], "intersection([2,1,2], [3,1,2,2])");
     @list = substractItem([1, 2, 3, 4], [1, 2, 3]);                                                   # returns (4)
     eq_or_diff(\@list, [4], "substractItem([1,2,3,4], [1,2,3])");
     @list = substractItem([undef], [undef]);                                                          # returns ()

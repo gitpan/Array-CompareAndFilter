@@ -4,7 +4,7 @@
 # File:     CompareAndFilter.pm
 # Date:     2012-06-25
 # Author:   H. Klausing (h.klausing (at) gmx.de)
-# Version:  v1.0.2
+# Version:  v1.0.3
 #
 # Description:
 #   Compares and filters contents of arrays.
@@ -17,6 +17,10 @@
 ################################################################################
 #
 # Updates:
+# 2012-09-01 v1.0.3   H. Klausing
+#       subroutine intersection corrected - multiple lists elements were handled
+#       correctly now.
+#       version number incremented
 # 2012-08-12 v1.0.2   H. Klausing
 #       version number incremented
 # 2012-08-05 v1.0.1   H. Klausing
@@ -28,8 +32,8 @@
 #
 ################################################################################
 #
-use v5.10.0;
-our $VERSION = 'v1.0.2';    # Version number
+use v5.010;                 # loads all features available in perl 5.10 (no real requirement)
+our $VERSION = 'v1.0.3';    # Version number
 
 #--- ToDo list -----------------------------------------------------------------
 #
@@ -52,7 +56,7 @@ use warnings;
 #
 #
 #--- global variables -------------------
-state $unDef = '?undef?';
+use constant UNDEF => '?undef?';
 
 #
 #
@@ -199,6 +203,7 @@ sub compareOrder {
 # If an item value is undef it will be handled like the text '?undef?'.
 # Before the result is returned this value is changed back to undef.
 # intersection([1,2,5,4], [2,1,4,3])  ==> (1,2,4)
+# intersection([1,2,4,3,4], [2,1,3])  ==> (1,2,3)
 # Param1:   reference to first array
 # Param2:   reference to second array
 # Return:   Sorted list of equal items
@@ -209,15 +214,18 @@ sub intersection {
     die "Parameter 2 must be an array reference!" if (ref($arr2_ref) ne 'ARRAY');
 
     # use item value as hash key to shrink data and count the occurrence
-    my %count = incrementItems([(@$arr1_ref, @$arr2_ref)]);
-
-    # fill array @intersec with result values
-    my (@intersec, @temp);
-
-    for (keys %count) {
-        push(@{$count{$_} > 1 ? \@intersec : \@temp}, $_);
+    my %cnt1 = incrementItems($arr1_ref);
+    my %cnt2 = incrementItems($arr2_ref);
+    my @resultList;
+    foreach my $key (keys %cnt1) {
+        while ($cnt1{$key}--){
+            if(defined($cnt2{$key}) && $cnt2{$key}) {
+                push(@resultList, $key);
+                $cnt2{$key}--;
+            }
+        }
     }
-    return prepareReturnList(\@intersec);
+    return prepareReturnList(\@resultList);
 }
 
 #
@@ -308,9 +316,9 @@ sub substractValue {
 
     # copy ARRAYREF1 content to return array
     my @arr1;
-    push(@arr1, (defined($_) ? $_ : $unDef)) for (@$arr1_ref);
+    push(@arr1, (defined($_) ? $_ : UNDEF)) for (@$arr1_ref);
     my @arr2;
-    push(@arr2, (defined($_) ? $_ : $unDef)) for (@$arr2_ref);
+    push(@arr2, (defined($_) ? $_ : UNDEF)) for (@$arr2_ref);
     my @resultList = ();    # result list
     my %subtrahend;
     $subtrahend{$_} = 1 for (@arr2);    # remove double item values
@@ -321,7 +329,7 @@ sub substractValue {
 
         if (not($item ~~ @exclude)) {
             if (not $item ~~ @resultList) {
-                push(@resultList, ($item ne $unDef) ? $item : undef);
+                push(@resultList, ($item ne UNDEF) ? $item : undef);
             }
         }
         use warnings;
@@ -424,7 +432,7 @@ sub singularize {
 
             # order from begin of array
             foreach my $item (@$arr_ref) {
-                $item = $item // $unDef;
+                $item = $item // UNDEF;
 
                 if (not($item ~~ @outList)) {
                     push(@outList, $item);
@@ -435,7 +443,7 @@ sub singularize {
 
             # order from end of array
             for (my $i = scalar(@$arr_ref) - 1; $i >= 0; $i--) {
-                my $item = $arr_ref->[$i] // $unDef;
+                my $item = $arr_ref->[$i] // UNDEF;
                 no warnings;
 
                 if (not($item ~~ @outList)) {
@@ -446,7 +454,7 @@ sub singularize {
         }
 
         for (my $i = 0; $i < scalar(@outList); $i++) {
-            if ($outList[$i] eq $unDef) {
+            if ($outList[$i] eq UNDEF) {
                 $outList[$i] = undef;
                 last;
             }
@@ -469,7 +477,7 @@ sub singularize {
 sub incrementItems {
     my ($arr_ref,) = @_;
     my %countList;
-    $countList{defined() ? $_ : $unDef}++ for (@$arr_ref);
+    $countList{defined() ? $_ : UNDEF}++ for (@$arr_ref);
     return %countList;
 }
 
@@ -485,7 +493,7 @@ sub incrementItems {
 sub decrementItems {
     my ($arr_ref,) = @_;
     my %countList;
-    $countList{defined() ? $_ : $unDef}-- for (@$arr_ref);
+    $countList{defined() ? $_ : UNDEF}-- for (@$arr_ref);
     return %countList;
 }
 
@@ -503,7 +511,7 @@ sub decrementItems {
 sub setItems {
     my ($arr_ref, $value) = @_;
     my %resultList;
-    $resultList{defined() ? $_ : $unDef} = $value for (@$arr_ref);
+    $resultList{defined() ? $_ : UNDEF} = $value for (@$arr_ref);
     return %resultList;
 }
 
@@ -520,7 +528,7 @@ sub prepareReturnList {
     my ($arr_ref) = @_;
     my @returnList;
     no warnings;
-    push(@returnList, (($_ ne $unDef) ? $_ : undef)) for (sort @$arr_ref);
+    push(@returnList, (($_ ne UNDEF) ? $_ : undef)) for (sort @$arr_ref);
     use warnings;
     return @returnList;
 }
@@ -564,7 +572,7 @@ for different requirements.
  }
 
  # intersection gets equal items of two arrays
- my @inter = intersection([1,2,3], [2,3,4]);
+ my @inter = intersection([1,2,3], [2,3,4,2]);
  say "The intersection items (\@inter) are 2 & 3.";
  
  # substractItem substract ARR2 items from ARR1
@@ -729,6 +737,7 @@ value than the function returns a undef for this.
  intersection([undef], [undef]);            # returns (undef)
  intersection([], []);                      # returns ()
  intersection([1,2], [2,3]);                # returns (2)
+ intersection([2,1,2], [3,1,2,2]);          # returns (1,2,2)
 
 =back
 
@@ -907,7 +916,7 @@ value than the function returns a undef for this.
 
 =head1 VERSION
 
-v1.0.2
+v1.0.3
 
 =head1 AUTHOR
 

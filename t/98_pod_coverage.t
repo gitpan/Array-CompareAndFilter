@@ -4,7 +4,6 @@
 # File:     00_pod_coverage.t
 # Date:     2012-08-05
 # Author:   H. Klausing (h.klausing (at) gmx.de)
-# Version:  v1.0.2
 #
 # Description:
 #   Tests for POD coverage.
@@ -12,9 +11,11 @@
 ################################################################################
 #
 # Updates:
-# 2012-08-12 v1.0.2   H. Klausing
+# 2012-09-01 H. Klausing
+#       Version number removed.
+# 2012-08-12 v 1.0.2   H. Klausing
 #       version number incremented
-# 2012-08-05 v1.0.1   H. Klausing
+# 2012-08-05 v 1.0.1   H. Klausing
 #       Initial script version
 #
 ################################################################################

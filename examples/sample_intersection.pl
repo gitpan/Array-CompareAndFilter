@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
+use lib '../lib';
 use Array::CompareAndFilter qw(intersection);
 
 sub filter {
@@ -34,4 +35,13 @@ filter(\@array1, \@array2, (2 .. 5));
 #  @array2: 6 7 8 9 0
 @array2 = (6, 7, 8, 9, 0);
 filter(\@array1, \@array2);
+
+@array1=(1,2,3);
+@array2=(1,2,3,4,4);
+filter(\@array1, \@array2, (1,2,3));
+
+@array1=(4,1,2,4,3);
+@array2=(1,2,3);
+filter(\@array1, \@array2, (1,2,3));
+
 exit(0);

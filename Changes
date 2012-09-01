@@ -1,5 +1,9 @@
 Change log
 
+v1.0.3  2012-09-01
+    -   intersection handles multiple equal elements in an array correct now.
+        e.g. intersection([1,2,1],[2,1]) -> (1,2) 
+
 v1.0.2  2012-08-12
     -   Missing build require module added. 
 

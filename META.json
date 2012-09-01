@@ -35,10 +35,10 @@
       },
       "runtime" : {
          "requires" : {
-            "perl" : "v5.10.0"
+            "perl" : "5.010"
          }
       }
    },
    "release_status" : "stable",
-   "version" : "v1.0.2"
+   "version" : "v1.0.3"
 }
