@@ -1,10 +1,10 @@
 {
-   "abstract" : "Basic functions to compare and filter arrays for different requirements.",
+   "abstract" : "Basic functions to compare and filter arrays ",
    "author" : [
       "H. Klausing <h.klausing (AT) gmx.de>"
    ],
-   "dynamic_config" : 1,
-   "generated_by" : "ExtUtils::MakeMaker version 6.98, CPAN::Meta::Converter version 2.142060",
+   "dynamic_config" : 0,
+   "generated_by" : "ExtUtils::MakeMaker version 6.62, CPAN::Meta::Converter version 2.112150, CPAN::Meta::Converter version 2.142060",
    "license" : [
       "perl_5"
    ],

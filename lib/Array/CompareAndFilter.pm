@@ -4,7 +4,7 @@
 # File:     CompareAndFilter.pm
 # Date:     2012-06-25
 # Author:   H. Klausing (h.klausing (at) gmx.de)
-# Version:  v1.0.3
+# Version:  v1.100
 #
 # Description:
 #   Compares and filters contents of arrays.
@@ -17,6 +17,9 @@
 ################################################################################
 #
 # Updates:
+# 2014-09-14 v1.100   H. Klausing
+#       - version handling improved, version format changed.
+#       - reason for perl 5.18 message 'Smartmatch is experimental at ...' removed.
 # 2012-09-01 v1.0.3   H. Klausing
 #       subroutine intersection corrected - multiple lists elements were handled
 #       correctly now.
@@ -32,8 +35,8 @@
 #
 ################################################################################
 #
-use v5.010;                 # loads all features available in perl 5.10 (no real requirement)
-our $VERSION = 'v1.0.3';    # Version number
+use v5.010;    # loads all features available in perl 5.10 (no real requirement)
+our $VERSION = 'v1.100';    # Version number
 
 #--- ToDo list -----------------------------------------------------------------
 #
@@ -44,20 +47,17 @@ our $VERSION = 'v1.0.3';    # Version number
 #--- module name ------------------------
 package Array::CompareAndFilter;
 require Exporter;
-
 #
 #
 #
 #--- process requirements ---------------
 use strict;
 use warnings;
-
 #
 #
 #
 #--- global variables -------------------
 use constant UNDEF => '?undef?';
-
 #
 #
 #
@@ -65,41 +65,21 @@ use constant UNDEF => '?undef?';
 our @ISA       = qw(Exporter);
 our @EXPORT    = qw();           # standard export
 our @EXPORT_OK = qw(
-  compareValue compareItem compareOrder
-  intersection difference substractItem substractValue
-  unscramble
-  unique singularize);           # export if required
-our %EXPORT_TAGS = (             # Export as group
+    compareValue compareItem compareOrder
+    intersection difference substractItem substractValue
+    unscramble
+    unique singularize singular);    # export if required
+our %EXPORT_TAGS = (                 # Export as group
     all => [
-        qw(compareValue compareItem compareOrder intersection difference substractItem substractValue unscramble unique singularize)
+        qw(compareValue compareItem compareOrder intersection difference substractItem substractValue unscramble unique singularize singular)
     ],
     compare   => [qw(compareValue compareItem compareOrder)],
     substract => [qw(substractItem substractValue)],
 );
-
 #
 #
 #
 #--- used modules -----------------------
-#
-#
-#
-#--- function forward declarations ------
-sub compareValue;
-sub compareItem;
-sub compareOrder;
-sub intersection;
-sub difference;
-sub substractItem;
-sub substractValue;
-sub unscramble;
-sub unique;
-sub singularize;
-sub incrementItems;
-sub decrementItems;
-sub setItems;
-sub prepareReturnList;
-
 #
 #
 #
@@ -137,7 +117,6 @@ sub compareValue {
     }
     return 1;
 }
-
 #
 #
 #
@@ -169,7 +148,6 @@ sub compareItem {
     }
     return 1;
 }
-
 #
 #
 #
@@ -191,10 +169,26 @@ sub compareOrder {
     my ($arr1_ref, $arr2_ref) = @_;
     die "Parameter 1 must be an array reference!" if (ref($arr1_ref) ne 'ARRAY');
     die "Parameter 2 must be an array reference!" if (ref($arr2_ref) ne 'ARRAY');
+    my $size1 = scalar(@{$arr1_ref});
+    my $size2 = scalar(@{$arr2_ref});
 
-    return (@$arr1_ref ~~ @$arr2_ref) ? 1 : 0;
-} ## end sub compareOrder
+    if ($size1 != $size2) {
+        return 0;
+    }
 
+    if (!defined($arr1_ref->[0]) && !defined($arr2_ref->[0])) {
+        return 1;
+    } elsif (!defined($arr1_ref->[0]) || !defined($arr2_ref->[0])) {
+        return 0;
+    }
+
+    for (my $i = 0; $i < scalar(@{$arr1_ref}); $i++) {
+        if ($arr1_ref->[$i] ne $arr2_ref->[$i]) {
+            return 0;
+        }
+    }
+    return 1;
+}
 #
 #
 #
@@ -217,9 +211,11 @@ sub intersection {
     my %cnt1 = incrementItems($arr1_ref);
     my %cnt2 = incrementItems($arr2_ref);
     my @resultList;
+
     foreach my $key (keys %cnt1) {
-        while ($cnt1{$key}--){
-            if(defined($cnt2{$key}) && $cnt2{$key}) {
+        while ($cnt1{$key}--) {
+
+            if (defined($cnt2{$key}) && $cnt2{$key}) {
                 push(@resultList, $key);
                 $cnt2{$key}--;
             }
@@ -227,7 +223,6 @@ sub intersection {
     }
     return prepareReturnList(\@resultList);
 }
-
 #
 #
 #
@@ -257,7 +252,6 @@ sub difference {
     }
     return prepareReturnList(\@diff);
 }
-
 #
 #
 #
@@ -292,8 +286,7 @@ sub substractItem {
         }
     }
     return @resultList;
-} ## end sub substractItem
-
+}
 #
 #
 #
@@ -335,8 +328,7 @@ sub substractValue {
         use warnings;
     }
     return @resultList;
-} ## end sub substractValue
-
+}
 #
 #
 #
@@ -363,7 +355,6 @@ sub unscramble {
     }
     return prepareReturnList(\@union);
 }
-
 #
 #
 #
@@ -398,8 +389,7 @@ sub unique {
         }
     }
     return prepareReturnList(\@unique);
-} ## end sub unique
-
+}
 #
 #
 #
@@ -409,11 +399,11 @@ sub unique {
 # Before the result is returned this value is changed back to undef.
 # singularize([1,2,3,4,5])      == [1,2,3,4,5]
 # singularize([1,1,1,1,2])      == [1,2]
-# singularize([2,2,3,1,2],'s')  ==[1,2,3]
+# singularize([2,2,3,1,2],'s')  == [1,2,3]
 # singularize([2,2,3,1,2],'b')  == [2,3,1]
 # singularize([2,2,3,1,2],'e')  == [3,1,2]
 # Param1:   reference to array
-# Param2:   order selection
+# Param2:   order selection (default is 's')
 #           'b' - keep order from the begin of array
 #           'e' - keep order from the end of array
 #           all other - sort output
@@ -423,7 +413,7 @@ sub singularize {
     my ($arr_ref, $order) = @_;
     $order = $order // 's';
     die "Parameter 1 must be an array reference!" if (ref($arr_ref) ne 'ARRAY');
-    die "Parameter 2 must be a scalar!" if (ref($order) ne '');
+    die "Parameter 2 must be a scalar!"           if (ref($order) ne '');
 
     if ($order =~ /^(b|e)$/i) {
         my @outList;
@@ -434,12 +424,11 @@ sub singularize {
             foreach my $item (@$arr_ref) {
                 $item = $item // UNDEF;
 
-                if (not($item ~~ @outList)) {
+                if (not(grep {$item eq $_} @outList)) {
                     push(@outList, $item);
                 }
             }
-        }
-        else {
+        } else {
 
             # order from end of array
             for (my $i = scalar(@$arr_ref) - 1; $i >= 0; $i--) {
@@ -464,7 +453,29 @@ sub singularize {
     my %count = incrementItems($arr_ref);    # count amount of items
     return prepareReturnList([keys %count]);
 } ## end sub singularize
+#
+#
+#
+#-------------------------------------------------------------------------------
+# singular   is the short form of singularize([],'b').
+# If an item value is undef this subfunction can not be used.
+# Before the result is returned this value is changed back to undef.
+# singular([1,2,3,4,5])      == [1,2,3,4,5]
+# singular([1,1,1,1,2])      == [1,2]
+# singular([2,2,3,1,2])      == [2,1,2]
+# Param1:   reference to array
+# Return:   Sorted list of singular items.
+#-------------------------------------------------------------------------------
+sub singular {
+    my ($arr_ref) = @_;
+    die "Parameter 1 must be an array reference!" if (ref($arr_ref) ne 'ARRAY');
+    my %found=();
+    no warnings;
+    my @outlist = grep { !$found{$_}++ } @{$arr_ref};
+    use warnings;
 
+    return @outlist;
+}
 #
 #
 #
@@ -480,23 +491,6 @@ sub incrementItems {
     $countList{defined() ? $_ : UNDEF}++ for (@$arr_ref);
     return %countList;
 }
-
-#
-#
-#
-#-------------------------------------------------------------------------------
-# decrementItems counts all items values to negative. If an item value
-# is undefined the used return key is '?undef?'.
-# Param1:   reference to array
-# Return:   hash list of counted items.
-#-------------------------------------------------------------------------------
-sub decrementItems {
-    my ($arr_ref,) = @_;
-    my %countList;
-    $countList{defined() ? $_ : UNDEF}-- for (@$arr_ref);
-    return %countList;
-}
-
 #
 #
 #
@@ -514,7 +508,6 @@ sub setItems {
     $resultList{defined() ? $_ : UNDEF} = $value for (@$arr_ref);
     return %resultList;
 }
-
 #
 #
 #
@@ -532,7 +525,6 @@ sub prepareReturnList {
     use warnings;
     return @returnList;
 }
-
 #
 #
 #
@@ -542,14 +534,14 @@ sub prepareReturnList {
 
 =head1 NAME
 
-Array::CompareAndFilter - Basic functions to compare and filter arrays 
+Array::CompareAndFilter - Basic functions to compare and filter arrays
 for different requirements.
 
 =head1 SYNOPSIS
 
  use Array::CompareAndFilter qw(compareValue compareItem compareOrder intersection difference unscramble unique);
  # or use Array::CompareAndFilter qw(:all);
- 
+
  # compare the content of two arrays
  if(compareValue([1,2,3,3], [1,2,3])) {
      say "Both arrays have same content.";                      # output
@@ -574,11 +566,11 @@ for different requirements.
  # intersection gets equal items of two arrays
  my @inter = intersection([1,2,3], [2,3,4,2]);
  say "The intersection items (\@inter) are 2 & 3.";
- 
+
  # substractItem substract ARR2 items from ARR1
  my @subItem = substractItem([3,1,2,3], [2,3]);
  say "The substractItem items (\@subItem) are 1 & 3";
- 
+
  # substractValue substract ARR2 value from ARR1
  my @subValue = substractValue([3,1,2,3], [2,3]);
  say "The substractValue items (\@subValue) is 1";
@@ -586,15 +578,15 @@ for different requirements.
  # difference gets items that are not part of the other aray
  my @diff = difference([1,2,3,4], [1,3,4,5]);
  say "The difference items (\@diff) are 2 & 5.";
- 
+
  # union gets a list of items that part of all arrays
  my @unscramble = unscramble([1,2], [1,4,3]);
  say "The unscramble items (\@unscramble) are 1,2,3 & 4.";
- 
+
  # unique gets a list of items of array1 that part are not in array2
  my @unique = unique([1,2,3,4,6], [1,2,3,5]);
  say "The unique items (@unique) are 4 & 6.";
- 
+
  # singularize gets a list of singular items of array
  my @singularize = singularize([3,2,3,4,1]);
  say "The singularize items (\@singularize) are 1, 2, 3 & 4.";
@@ -602,6 +594,10 @@ for different requirements.
  say "The singularize items (\@singularize) are 3, 2, 4 & 1.";
  my @singularize = singularize([3,2,3,4,1],'e');
  say "The singularize items (\@singularize) are 2, 3, 4 & 1.";
+
+ # singular gets a list of singular items of array from first to last
+ my @singular = singular([3,2,3,4,1]);
+ say "The singular items (\@singular) are 3, 2, 4 & 1.";
 
 =head1 DESCRIPTION
 
@@ -615,7 +611,7 @@ array any kind of arrays. If these names are listed in square brackets it
 is a synonym of a reference. E.g. [ARRAY1] is a reference to the array
 ARRAY1.
 
-Other parameter types will not excepted. If a given scalar value to the 
+Other parameter types will not excepted. If a given scalar value to the
 functions has not the reference type ARRAY the function exits with an
 error message. E.g. a call of compareValue([1,2,3], 3) will throw an error.
 
@@ -625,13 +621,13 @@ error message. E.g. a call of compareValue([1,2,3], 3) will throw an error.
 
 =item B<compareValue>([ARRAY1],[ARRAY2])
 
-I<compareValue> compares all values of two arrays. If each value of one 
-array is found in the other array it will return true (1). The function 
-returns false (0) if a difference in the content was found. The 
+I<compareValue> compares all values of two arrays. If each value of one
+array is found in the other array it will return true (1). The function
+returns false (0) if a difference in the content was found. The
 comparison is case sensitive. Value is defined as a data value of
 # an item.
 
-If an item value is undefined it will be handled within the function like 
+If an item value is undefined it will be handled within the function like
 the text like '?undef?'. If an item value of ARRAY1 or ARRAY2 has the same
 value than the function returns a undef for this.
 
@@ -657,12 +653,12 @@ value than the function returns a undef for this.
 
 =item B<compareItem>([ARRAY1],[ARRAY2])
 
-I<compareItem> compares all items of two arrays. If the size and the 
+I<compareItem> compares all items of two arrays. If the size and the
 contents are equal this function will return 1. The function returns 0
-if a difference in the size or in the content is found. The comparison 
+if a difference in the size or in the content is found. The comparison
 is case sensitive.
 
-If an item value is undefined it will be handled within the function like 
+If an item value is undefined it will be handled within the function like
 the text like '?undef?'. If an item value of ARRAY1 or ARRAY2 has the same
 value than the function returns a undef for this.
 
@@ -688,12 +684,12 @@ value than the function returns a undef for this.
 
 =item B<compareOrder>([ARRAY1],[ARRAY2])
 
-I<compareOrder> compares all items of two arrays. If the size, content 
+I<compareOrder> compares all items of two arrays. If the size, content
 and the order of items are same it will return 1. The function returns 0
-if a difference in size, content or order of items is found. The 
+if a difference in size, content or order of items is found. The
 comparison is case sensitive.
 
-If an item value is undefined it will be handled within the function like 
+If an item value is undefined it will be handled within the function like
 the text like '?undef?'. If an item value of ARRAY1 or ARRAY2 has the same
 value than the function returns a undef for this.
 
@@ -721,11 +717,11 @@ value than the function returns a undef for this.
 =item B<intersection>([ARRAY1],[ARRAY2])
 
 I<intersection> returns all items that are listed in each of both arrays
-as a sorted list. If one array has no items or no item is listed in the 
-other array this function returns an empty array. The comparison is 
+as a sorted list. If one array has no items or no item is listed in the
+other array this function returns an empty array. The comparison is
 case sensitive.
 
-If an item value is undefined it will be handled within the function like 
+If an item value is undefined it will be handled within the function like
 the text like '?undef?'. If an item value of ARRAY1 or ARRAY2 has the same
 value than the function returns a undef for this.
 
@@ -751,9 +747,9 @@ value than the function returns a undef for this.
 
 I<substractItem> returns an array with a subtraction list of the
 operation ARRAY1 - ARRAY2. If an item value in ARRAY2 is listed in
-ARRAY1, than one item of ARRAY1 will be removed from the begin of the 
-list. To remove multiple items, same amount of items have to be listed 
-in ARRAY1. If no match between an item of ARRAY2 to ARRAY1 is found, 
+ARRAY1, than one item of ARRAY1 will be removed from the begin of the
+list. To remove multiple items, same amount of items have to be listed
+in ARRAY1. If no match between an item of ARRAY2 to ARRAY1 is found,
 no change will happen in ARRAY1.
 
 The item order of ARRAY1 will be kept in the result list.
@@ -778,8 +774,8 @@ The item order of ARRAY1 will be kept in the result list.
 =item B<substractValue>([ARRAY1],[ARRAY2])
 
 I<substractValue> returns an array with a subtraction list of the
-operation ARRAY1 - ARRAY2. A value in ARRAY2 removes all items of 
-ARRAY1 that have the same value. If no match between an item of ARRAY2 
+operation ARRAY1 - ARRAY2. A value in ARRAY2 removes all items of
+ARRAY1 that have the same value. If no match between an item of ARRAY2
 to ARRAY1 is found, no change will happen in ARRAY1.
 
 The item order of ARRAY1 will be kept in the result list.
@@ -806,7 +802,7 @@ The item order of ARRAY1 will be kept in the result list.
 I<difference> returns a list of items that are not listed in the other
 array. The comparison is case sensitive.
 
-If an item value is undefined it will be handled within the function like 
+If an item value is undefined it will be handled within the function like
 the text like '?undef?'. If an item value of ARRAY1 or ARRAY2 has the same
 value than the function returns a undef for this.
 
@@ -830,10 +826,10 @@ value than the function returns a undef for this.
 
 =item B<unscramble>([ARRAY1],[ARRAY2])
 
-I<unscramble> returns a summary list of items. Each item value of 
+I<unscramble> returns a summary list of items. Each item value of
 both arrays will exist maximal one time.
 
-If an item value is undefined it will be handled within the function like 
+If an item value is undefined it will be handled within the function like
 the text like '?undef?'. If an item value of ARRAY1 or ARRAY2 has the same
 value than the function returns a undef for this.
 
@@ -855,10 +851,10 @@ value than the function returns a undef for this.
 
 =item B<unique>([ARRAY1],[ARRAY2])
 
-I<unique> checks all item values of ARRAY1 in the array of ARRAY2. 
+I<unique> checks all item values of ARRAY1 in the array of ARRAY2.
 It will return all items which were not found in ARRAY2.
 
-If an item value is undefined it will be handled within the function like 
+If an item value is undefined it will be handled within the function like
 the text like '?undef?'. If an item value of ARRAY1 or ARRAY2 has the same
 value than the function returns a undef for this.
 
@@ -880,7 +876,7 @@ value than the function returns a undef for this.
 
 =item B<singularize>([ARRAY])
 
-I<singularize> removes all double items values of the given array list. 
+I<singularize> removes all double items values of the given array list.
 By using an order argument the output can be selected for some different
 result variations.
 
@@ -896,7 +892,7 @@ No order argument or other data then 'b|B' or 'e|B' will return a sorted
 list of singularize values.
 
 If sorting is selected than following issue needes to be considered.
-If an item value is undefined it will be handled within the function like 
+If an item value is undefined it will be handled within the function like
 the text like '?undef?'. If an item value of ARRAY1 or ARRAY2 has the same
 value than the function returns a undef for this.
 
@@ -914,9 +910,34 @@ value than the function returns a undef for this.
 
 =back
 
+=head3 singular
+
+=over 4
+
+=item B<singular>([ARRAY])
+
+I<singular> removes all double items values of the given array list.
+This subfunction scans the input array by the item values from the
+begin and returns a list were the first found position of each value is
+used. E.g. [1,2,1,3] -> (1,2,3)
+
+It is expected that the array has no undefined element. Otherwise use
+singularize().
+
+=over 4
+
+=item Examples
+
+ singular([qw(d b d b c a)]);            # returns ('d','b','c','a')
+ singular([3,2,3,4,1]);                  # returns (3,2,4,1)
+
+=back
+
+=back
+
 =head1 VERSION
 
-v1.0.3
+v1.100
 
 =head1 AUTHOR
 
@@ -930,6 +951,5 @@ This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
 =cut
-
 __END__
 

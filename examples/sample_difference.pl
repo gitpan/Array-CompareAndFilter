@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
+use lib '../lib';
 use Array::CompareAndFilter qw(difference);
 sub filter {
     my ($arr1_ref, $arr2_ref, @expectedResult) = @_;

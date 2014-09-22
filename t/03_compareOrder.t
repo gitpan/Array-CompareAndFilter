@@ -40,7 +40,7 @@ use strict;
 #
 #
 #--- used modules -----------------------
-use Test::More(tests => 16);    # <-- put test numbers here
+use Test::More(tests => 17);    # <-- put test numbers here
 use Test::Differences qw(eq_or_diff);
 use Test::Exception;
 use Array::CompareAndFilter qw(compareOrder);
@@ -114,6 +114,9 @@ sub main {
 
     # Check behaviour of empty arrays, ([], [])==1
     is(compareOrder([], []), 1, 'compareOrder: Check behaviour of empty arrays, ([], [])==1');
+
+    # Check behaviour of empty array and scalar, ([], 1)==0
+    dies_ok {compareOrder([], 1)} 'compareOrder: Check behaviour of empty array and scalar, ([], 1)==0';
 
     # Check behaviour of arrays with undef, ([undef], [undef])==1
     is(compareOrder([undef], [undef]), 1, 'compareOrder: Check behaviour of arrays with undef, ([undef], [undef])==1');

@@ -1,4 +1,4 @@
-use ExtUtils::MakeMaker; 
+use ExtUtils::MakeMaker;
 WriteMakefile(
     NAME         => 'Array::CompareAndFilter',
     VERSION_FROM => 'lib/Array/CompareAndFilter.pm',
@@ -15,6 +15,6 @@ WriteMakefile(
         : ()
     ),
     MIN_PERL_VERSION => '5.010',
-    BUILD_REQUIRES   => {'Test::More' => 0, 'Test::Pod::Coverage' => 0, 'Test::Exception' => 0, 'Test::Differences' => 0},
+    BUILD_REQUIRES   => {'Test::Exception' => 0, 'Test::Differences' => 0, 'Test::More' => 0, 'Devel::Cover' => 0, 'Test::Pod::Coverage' => 0},
 );
 
